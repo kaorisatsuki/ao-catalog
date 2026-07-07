@@ -1,195 +1,332 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ご注文カタログ</title>
+<title>ご注文リスト</title>
 <style>
- :root{--paper:#faf8f4;--ink:#2b2a26;--muted:#8c877d;--line:#e7e2d8;--sage:#6f7d63;--sage-soft:#eef1e9;--accent:#c0392b;--card:#fff;}
+ :root{--paper:#faf8f4;--ink:#2b2a26;--muted:#8c877d;--line:#e7e2d8;--sage:#6f7d63;--accent:#c0392b;--profit:#2e7d55;--card:#fff;}
  *{box-sizing:border-box;}
- body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
- .wrap{max-width:1120px;margin:0 auto;padding:32px 20px 130px;}
- header.top{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:8px;}
+ body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;}
+ .wrap{max-width:860px;margin:0 auto;padding:30px 18px 150px;}
+ header.top{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:16px;}
  .eyebrow{font-size:12px;letter-spacing:.28em;color:var(--sage);font-weight:700;margin:0 0 6px;}
- h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-weight:600;font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:.02em;}
- .lead{color:var(--muted);font-size:14px;margin:10px 0 0;}
- .note{background:var(--sage-soft);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:20px 0 26px;font-size:13.5px;color:#4c4a44;}
- .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:22px;}
- .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s;}
- .card:hover{box-shadow:0 8px 24px rgba(60,55,45,.10);transform:translateY(-2px);}
- .thumb{position:relative;aspect-ratio:1/1;background:#f2efe9;}
- .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
- .body{padding:13px 15px 15px;display:flex;flex-direction:column;gap:9px;flex:1;}
- .name{font-size:13px;font-weight:600;margin:0;line-height:1.45;min-height:2.9em;}
- .prices{display:flex;align-items:baseline;gap:8px;}
- .msrp{color:var(--muted);text-decoration:line-through;font-size:12px;}
- .now{color:var(--accent);font-weight:700;font-size:19px;}
- .fld{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px;}
- .fld select,.fld input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--ink);}
- .fld select:focus,.fld input:focus{outline:2px solid var(--sage);border-color:var(--sage);}
- .sub{margin-top:auto;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;align-items:baseline;border-top:1px dashed var(--line);padding-top:8px;}
- .subval{font-size:15px;color:var(--ink);}
- .bar{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;padding:14px 22px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 -4px 20px rgba(0,0,0,.15);}
- .bar .lbl{font-size:12px;letter-spacing:.1em;opacity:.75;}
- .bar .total{font-family:"Hiragino Mincho ProN",serif;font-size:clamp(20px,3vw,28px);}
- .bar .cnt{font-size:12px;opacity:.75;margin-left:14px;}
- @media print{.bar{position:static;} .card:hover{box-shadow:none;transform:none;}}
+ h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-weight:600;font-size:clamp(24px,4vw,34px);margin:0;}
+ .lead{color:var(--muted);font-size:13.5px;margin:9px 0 0;}
+ .summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:18px 0 22px;}
+ .sm{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center;}
+ .sm .k{font-size:11px;color:var(--muted);letter-spacing:.02em;line-height:1.3;}
+ .sm .kf{font-size:9px;color:var(--muted);opacity:.8;}
+ .sm .v{font-family:"Hiragino Mincho ProN",serif;font-size:clamp(17px,3.4vw,23px);margin-top:2px;}
+ .sm.cost .v{color:var(--accent);} .sm.profit{background:#eef5f0;border-color:#d4e7dc;} .sm.profit .v{color:var(--profit);}
+ .list{display:flex;flex-direction:column;gap:10px;}
+ .row{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;}
+ .th{width:66px;height:66px;object-fit:cover;border-radius:8px;background:#f2efe9;flex:none;}
+ .mid{flex:1;min-width:0;}
+ .nm{font-size:13px;font-weight:600;line-height:1.35;}
+ .ctrls{display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap;}
+ .colortag{font-size:11px;color:#5a564d;background:#f0ede6;border:1px solid var(--line);border-radius:20px;padding:2px 10px;}
+ .qtywrap{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;}
+ .qtywrap input{width:52px;padding:5px 7px;border:1px solid var(--line);border-radius:7px;font-size:13px;font-family:inherit;}
+ .qtywrap input:focus{outline:2px solid var(--sage);border-color:var(--sage);}
+ .fin{flex:none;text-align:right;font-size:12px;color:var(--muted);min-width:122px;}
+ .fin .cost{color:var(--ink);font-size:13px;} .fin .cost b{color:var(--accent);font-size:16px;}
+ .fin .retail span{text-decoration:line-through;}
+ .fin .profit span{color:var(--profit);font-weight:700;}
+ .fin>div{margin-top:2px;}
+ .bar{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px;box-shadow:0 -4px 20px rgba(0,0,0,.15);flex-wrap:wrap;}
+ .bar .grp{display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;}
+ .bar .lbl{font-size:11px;opacity:.7;letter-spacing:.06em;}
+ .bar .amt{font-family:"Hiragino Mincho ProN",serif;font-size:clamp(18px,3.4vw,26px);}
+ .bar .amt.pf{color:#9ee0be;}
+ .bar .cnt{font-size:11px;opacity:.7;}
+ @media (max-width:560px){
+   .row{flex-wrap:wrap;} .fin{min-width:100%;text-align:left;border-top:1px dashed var(--line);padding-top:7px;display:flex;gap:14px;}
+   .fin>div{margin-top:0;} .summary{gap:7px;}
+ }
+ @media print{.bar{position:static;}}
 </style></head><body>
  <div class="wrap">
   <header class="top">
-   <p class="eyebrow">SELECT CATALOG</p>
-   <h1>ご注文カタログ</h1>
-   <p class="lead">気になる商品の「カラー」と「数量」をご記入ください。取り消し線が定価、赤字がご提供価格です。</p>
+   <p class="eyebrow">SELECT CATALOG ｜ ご提案リスト</p>
+   <h1>ご注文リスト</h1>
+   <p class="lead">仕入れ候補の一覧です（カラー別・各1点で計算）。数量はご自由に変更いただけます。「お客様の利益」＝上代 − お客様の仕入れ額 です。</p>
   </header>
-  <div class="note">全11型・全色在庫あり。価格は税抜・1点あたりです。数量を入れると下部に合計が出ます。</div>
-  <section class="grid">
-      <article class="card" data-price="3420">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/598/970/14598970_s_1001.jpg" referrerpolicy="no-referrer" alt="サマーツイードフリルオールインワン"></div>
-        <div class="body">
-          <h3 class="name">サマーツイードフリルオールインワン</h3>
-          <div class="prices"><span class="msrp">¥5,700</span><span class="now">¥3,420</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>アイボリー</option><option>ブラウン</option><option>グレー</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2700">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/255/655/15255655_s_1002.jpg" referrerpolicy="no-referrer" alt="レースサロペット"></div>
-        <div class="body">
-          <h3 class="name">レースサロペット</h3>
-          <div class="prices"><span class="msrp">¥4,500</span><span class="now">¥2,700</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>ブラック</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2700">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/558/374/15558374_s_1000.jpg" referrerpolicy="no-referrer" alt="リネンライク2タックパンツ"></div>
-        <div class="body">
-          <h3 class="name">リネンライク2タックパンツ</h3>
-          <div class="prices"><span class="msrp">¥4,500</span><span class="now">¥2,700</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>アイボリー</option><option>ブラウン</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2340">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/877/462/15877462_s_1001.jpg" referrerpolicy="no-referrer" alt="配色刺繍ローンバルーンノースリブラウス"></div>
-        <div class="body">
-          <h3 class="name">配色刺繍ローンバルーンノースリブラウス</h3>
-          <div class="prices"><span class="msrp">¥3,900</span><span class="now">¥2,340</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>オフ</option><option>ブラック</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="3420">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/901/164/15901164_s_1001.jpg" referrerpolicy="no-referrer" alt="薄合繊ツイルティアードバルーンワンピ"></div>
-        <div class="body">
-          <h3 class="name">薄合繊ツイルティアードバルーンワンピ</h3>
-          <div class="prices"><span class="msrp">¥5,700</span><span class="now">¥3,420</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>アイボリー</option><option>ブラウン</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2520">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/606/480/14606480_s_1000.jpg" referrerpolicy="no-referrer" alt="リネンライク2タックパンツ（チャコール）"></div>
-        <div class="body">
-          <h3 class="name">リネンライク2タックパンツ（チャコール）</h3>
-          <div class="prices"><span class="msrp">¥4,200</span><span class="now">¥2,520</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>チャコール</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="1980">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/016/121/589/16121589_s_1003.jpg" referrerpolicy="no-referrer" alt="カットジョーゼットピンタックパンツ"></div>
-        <div class="body">
-          <h3 class="name">カットジョーゼットピンタックパンツ</h3>
-          <div class="prices"><span class="msrp">¥3,300</span><span class="now">¥1,980</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>イエロー</option><option>ブラウン</option><option>ブラック</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2340">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/478/212/14478212_s_1000.jpg" referrerpolicy="no-referrer" alt="プリントイージーパンツ"></div>
-        <div class="body">
-          <h3 class="name">プリントイージーパンツ</h3>
-          <div class="prices"><span class="msrp">¥3,900</span><span class="now">¥2,340</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>オフ1</option><option>アイボリー2</option><option>ブラック2</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2340">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/368/763/15368763_s_1001.jpg" referrerpolicy="no-referrer" alt="シアーストライプオーバーサイズシャツ"></div>
-        <div class="body">
-          <h3 class="name">シアーストライプオーバーサイズシャツ</h3>
-          <div class="prices"><span class="msrp">¥3,900</span><span class="now">¥2,340</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>ブルー</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2160">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/410/338/15410338_s_1002.jpg" referrerpolicy="no-referrer" alt="メッシュボリューム袖プルオーバー"></div>
-        <div class="body">
-          <h3 class="name">メッシュボリューム袖プルオーバー</h3>
-          <div class="prices"><span class="msrp">¥3,600</span><span class="now">¥2,160</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>ブラウン</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-      <article class="card" data-price="2340">
-        <div class="thumb"><img loading="lazy" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/016/190/355/16190355_s_1001.jpg" referrerpolicy="no-referrer" alt="ブロードフリルブラウス"></div>
-        <div class="body">
-          <h3 class="name">ブロードフリルブラウス</h3>
-          <div class="prices"><span class="msrp">¥3,900</span><span class="now">¥2,340</span></div>
-          <label class="fld">カラー
-            <select class="color"><option value="">カラーを選択</option><option>ピンク</option></select>
-          </label>
-          <label class="fld">数量 <input type="number" class="qty" min="0" step="1" value="0"></label>
-          <div class="sub">小計 <b class="subval">¥0</b></div>
-        </div>
-      </article>
-  </section>
+
+  <div class="summary">
+   <div class="sm cost"><div class="k">お客様の仕入れ額 合計<span class="kf">（税抜）</span></div><div class="v" id="tCost">¥0</div></div>
+   <div class="sm"><div class="k">上代 合計</div><div class="v" id="tRetail">¥0</div></div>
+   <div class="sm profit"><div class="k">お客様の利益<br><span class="kf">上代 − お客様の仕入れ額</span></div><div class="v" id="tProfit">¥0</div></div>
+  </div>
+
+  <div class="list">
+    <div class="row" data-cost="3420" data-retail="5700">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/598/970/14598970_s_1001.jpg" referrerpolicy="no-referrer" alt="サマーツイードフリルオールインワン">
+      <div class="mid">
+        <div class="nm">サマーツイードフリルオールインワン</div>
+        <div class="ctrls"><span class="colortag">カラー：アイボリー</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥3,420</b></div>
+        <div class="retail">上代 <span>¥5,700</span></div>
+        <div class="profit">利益 <span>+¥2,280</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="3420" data-retail="5700">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/598/970/14598970_s_1001.jpg" referrerpolicy="no-referrer" alt="サマーツイードフリルオールインワン">
+      <div class="mid">
+        <div class="nm">サマーツイードフリルオールインワン</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラウン</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥3,420</b></div>
+        <div class="retail">上代 <span>¥5,700</span></div>
+        <div class="profit">利益 <span>+¥2,280</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="3420" data-retail="5700">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/598/970/14598970_s_1001.jpg" referrerpolicy="no-referrer" alt="サマーツイードフリルオールインワン">
+      <div class="mid">
+        <div class="nm">サマーツイードフリルオールインワン</div>
+        <div class="ctrls"><span class="colortag">カラー：グレー</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥3,420</b></div>
+        <div class="retail">上代 <span>¥5,700</span></div>
+        <div class="profit">利益 <span>+¥2,280</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2700" data-retail="4500">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/255/655/15255655_s_1002.jpg" referrerpolicy="no-referrer" alt="レースサロペット">
+      <div class="mid">
+        <div class="nm">レースサロペット</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラック</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,700</b></div>
+        <div class="retail">上代 <span>¥4,500</span></div>
+        <div class="profit">利益 <span>+¥1,800</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2700" data-retail="4500">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/558/374/15558374_s_1000.jpg" referrerpolicy="no-referrer" alt="リネンライク2タックパンツ">
+      <div class="mid">
+        <div class="nm">リネンライク2タックパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：アイボリー</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,700</b></div>
+        <div class="retail">上代 <span>¥4,500</span></div>
+        <div class="profit">利益 <span>+¥1,800</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2700" data-retail="4500">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/558/374/15558374_s_1000.jpg" referrerpolicy="no-referrer" alt="リネンライク2タックパンツ">
+      <div class="mid">
+        <div class="nm">リネンライク2タックパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラウン</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,700</b></div>
+        <div class="retail">上代 <span>¥4,500</span></div>
+        <div class="profit">利益 <span>+¥1,800</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/877/462/15877462_s_1001.jpg" referrerpolicy="no-referrer" alt="配色刺繍ローンバルーンノースリブラウス">
+      <div class="mid">
+        <div class="nm">配色刺繍ローンバルーンノースリブラウス</div>
+        <div class="ctrls"><span class="colortag">カラー：オフ</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/877/462/15877462_s_1001.jpg" referrerpolicy="no-referrer" alt="配色刺繍ローンバルーンノースリブラウス">
+      <div class="mid">
+        <div class="nm">配色刺繍ローンバルーンノースリブラウス</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラック</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="3420" data-retail="5700">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/901/164/15901164_s_1001.jpg" referrerpolicy="no-referrer" alt="薄合繊ツイルティアードバルーンワンピ">
+      <div class="mid">
+        <div class="nm">薄合繊ツイルティアードバルーンワンピ</div>
+        <div class="ctrls"><span class="colortag">カラー：アイボリー</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥3,420</b></div>
+        <div class="retail">上代 <span>¥5,700</span></div>
+        <div class="profit">利益 <span>+¥2,280</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="3420" data-retail="5700">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/901/164/15901164_s_1001.jpg" referrerpolicy="no-referrer" alt="薄合繊ツイルティアードバルーンワンピ">
+      <div class="mid">
+        <div class="nm">薄合繊ツイルティアードバルーンワンピ</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラウン</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥3,420</b></div>
+        <div class="retail">上代 <span>¥5,700</span></div>
+        <div class="profit">利益 <span>+¥2,280</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2520" data-retail="4200">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/606/480/14606480_s_1000.jpg" referrerpolicy="no-referrer" alt="リネンライク2タックパンツ（チャコール）">
+      <div class="mid">
+        <div class="nm">リネンライク2タックパンツ（チャコール）</div>
+        <div class="ctrls"><span class="colortag">カラー：チャコール</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,520</b></div>
+        <div class="retail">上代 <span>¥4,200</span></div>
+        <div class="profit">利益 <span>+¥1,680</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="1980" data-retail="3300">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/016/121/589/16121589_s_1003.jpg" referrerpolicy="no-referrer" alt="カットジョーゼットピンタックパンツ">
+      <div class="mid">
+        <div class="nm">カットジョーゼットピンタックパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：イエロー</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥1,980</b></div>
+        <div class="retail">上代 <span>¥3,300</span></div>
+        <div class="profit">利益 <span>+¥1,320</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="1980" data-retail="3300">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/016/121/589/16121589_s_1003.jpg" referrerpolicy="no-referrer" alt="カットジョーゼットピンタックパンツ">
+      <div class="mid">
+        <div class="nm">カットジョーゼットピンタックパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラウン</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥1,980</b></div>
+        <div class="retail">上代 <span>¥3,300</span></div>
+        <div class="profit">利益 <span>+¥1,320</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="1980" data-retail="3300">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/016/121/589/16121589_s_1003.jpg" referrerpolicy="no-referrer" alt="カットジョーゼットピンタックパンツ">
+      <div class="mid">
+        <div class="nm">カットジョーゼットピンタックパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラック</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥1,980</b></div>
+        <div class="retail">上代 <span>¥3,300</span></div>
+        <div class="profit">利益 <span>+¥1,320</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/478/212/14478212_s_1000.jpg" referrerpolicy="no-referrer" alt="プリントイージーパンツ">
+      <div class="mid">
+        <div class="nm">プリントイージーパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：オフ1</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/478/212/14478212_s_1000.jpg" referrerpolicy="no-referrer" alt="プリントイージーパンツ">
+      <div class="mid">
+        <div class="nm">プリントイージーパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：アイボリー2</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/014/478/212/14478212_s_1000.jpg" referrerpolicy="no-referrer" alt="プリントイージーパンツ">
+      <div class="mid">
+        <div class="nm">プリントイージーパンツ</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラック2</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/368/763/15368763_s_1001.jpg" referrerpolicy="no-referrer" alt="シアーストライプオーバーサイズシャツ">
+      <div class="mid">
+        <div class="nm">シアーストライプオーバーサイズシャツ</div>
+        <div class="ctrls"><span class="colortag">カラー：ブルー</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2160" data-retail="3600">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/015/410/338/15410338_s_1002.jpg" referrerpolicy="no-referrer" alt="メッシュボリューム袖プルオーバー">
+      <div class="mid">
+        <div class="nm">メッシュボリューム袖プルオーバー</div>
+        <div class="ctrls"><span class="colortag">カラー：ブラウン</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,160</b></div>
+        <div class="retail">上代 <span>¥3,600</span></div>
+        <div class="profit">利益 <span>+¥1,440</span></div>
+      </div>
+    </div>
+    <div class="row" data-cost="2340" data-retail="3900">
+      <img class="th" src="https://c.superdelivery.com/ip/n/sa/300/300/www.superdelivery.com/product_image/016/190/355/16190355_s_1001.jpg" referrerpolicy="no-referrer" alt="ブロードフリルブラウス">
+      <div class="mid">
+        <div class="nm">ブロードフリルブラウス</div>
+        <div class="ctrls"><span class="colortag">カラー：ピンク</span><span class="qtywrap">数量 <input class="qty" type="number" min="0" step="1" value="1"></span></div>
+      </div>
+      <div class="fin">
+        <div class="cost">仕入れ額 <b>¥2,340</b></div>
+        <div class="retail">上代 <span>¥3,900</span></div>
+        <div class="profit">利益 <span>+¥1,560</span></div>
+      </div>
+    </div>
+  </div>
  </div>
+
  <div class="bar">
-  <span class="lbl">選択中の合計（税抜）</span>
-  <span><span class="total" id="total">¥0</span><span class="cnt" id="count">0点</span></span>
+  <span class="grp">
+   <span><span class="lbl">お客様の仕入れ額 合計</span><br><span class="amt" id="bCost">¥0</span></span>
+   <span><span class="lbl">お客様の利益</span><br><span class="amt pf" id="bProfit">¥0</span></span>
+  </span>
+  <span class="cnt" id="bCnt">0点</span>
  </div>
+
 <script>
  var yen=function(n){return '¥'+n.toLocaleString('ja-JP');};
  function recalc(){
-  var total=0,count=0;
-  document.querySelectorAll('.card').forEach(function(c){
-   var p=parseFloat(c.dataset.price)||0, q=parseInt(c.querySelector('.qty').value)||0, s=p*q;
-   c.querySelector('.subval').textContent=yen(s); total+=s; count+=q;
+  var tc=0,tr=0,cnt=0;
+  document.querySelectorAll('.row').forEach(function(r){
+   var c=parseFloat(r.dataset.cost)||0, rt=parseFloat(r.dataset.retail)||0;
+   var q=parseInt(r.querySelector('.qty').value)||0;
+   tc+=c*q; tr+=rt*q; cnt+=q;
   });
-  document.getElementById('total').textContent=yen(total);
-  document.getElementById('count').textContent=count+'点';
+  var tp=tr-tc;
+  document.getElementById('tCost').textContent=yen(tc);
+  document.getElementById('tRetail').textContent=yen(tr);
+  document.getElementById('tProfit').textContent='+'+yen(tp);
+  document.getElementById('bCost').textContent=yen(tc);
+  document.getElementById('bProfit').textContent='+'+yen(tp);
+  document.getElementById('bCnt').textContent=cnt+'点';
  }
  document.addEventListener('input',function(e){ if(e.target.classList.contains('qty')) recalc(); });
+ recalc();
 </script>
 </body></html>
